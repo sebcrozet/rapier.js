@@ -29,6 +29,8 @@ jobs:
         run: cd rapier3d; ./build_all.sh;
       - name: Build rapier-compat
         run: npm install; cd rapier-compat; npm install; npm run build;
+      - name: Build rapier-module
+        run: cd rapier-module; npm install; npm run build;
   build-macos:
     runs-on: macos-latest
     env:
@@ -42,3 +44,5 @@ jobs:
         run: cd rapier3d; ./build_all.sh;
       - name: Build rapier-compat
         run: npm install; cd rapier-compat; npm install; npm run build;
+      - name: Build rapier-module
+        run: cd rapier-module; npm install; npm run build;
