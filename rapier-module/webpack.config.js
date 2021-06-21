@@ -68,7 +68,7 @@ function copyAndReplace({is2d}) {
                             config.name = `@dimforge/rapier${dim}-module`;
                             config.description += " esmodule for buildless use in modern browsers";
                             config.types = "dist/rapier.d.ts";
-                            config.main = "dist/index.js";
+                            config.main = "dist/rapier.js";
                             config.type = "module",
                             config.files = ["*"];
                             delete config.module;
@@ -125,9 +125,9 @@ function compile({is2d}) {
             // create a thin wrapper class to avoid having to call RAPIER.init
             new CreateFileWebpack({
                 path: path.resolve(__dirname, `./pkg${dim}/dist/`),
-                fileName: "index.js",
+                fileName: "rapier.js",
                 content: `
-import * as RAPIER from "./rapier.js";
+import * as RAPIER from "./rapier_async.js";
 await RAPIER.init();
 export default RAPIER;`,
             })
@@ -136,7 +136,7 @@ export default RAPIER;`,
             extensions: [".tsx", ".ts", ".js"],
         },
         output: {
-            filename: "rapier.js",
+            filename: "rapier_async.js",
             enabledChunkLoadingTypes: ["import-scripts"],
             chunkLoading: "import-scripts",
             wasmLoading: "fetch",
