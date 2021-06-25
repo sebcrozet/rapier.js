@@ -1,6 +1,7 @@
 const CreateFileWebpack = require("create-file-webpack");
 const CopyPlugin = require("copy-webpack-plugin");
 const path = require("path");
+const WrapperPlugin = require('wrapper-webpack-plugin');
 
 function matchOtherDimRegex({is2d}) {
     if (is2d) {
@@ -14,8 +15,6 @@ function initCode({is2d}) {
     let dim = is2d ? "2d" : "3d";
 
     return `
-// @ts-ignore
-import wasmBase64 from "./rapier_wasm${dim}_bg.wasm";
 import wasmInit from "./rapier_wasm${dim}";
 
 /**
@@ -23,7 +22,7 @@ import wasmInit from "./rapier_wasm${dim}";
  * Has to be called and awaited before using any library methods.
  */
 export async function init() {
-    await wasmInit(wasmBase64);
+    await wasmInit();
 }`;
 }
 
@@ -112,7 +111,10 @@ function compile({is2d}) {
             rules: [
                 {
                     test: /\.wasm$/,
-                    type: 'asset/inline'
+                    type: 'asset/resource',
+                    generator: {
+                        filename: 'rapier.wasm'
+                     }
                 },
                 {
                     test: /\.tsx?$/,
@@ -122,21 +124,65 @@ function compile({is2d}) {
             ],
         },
         plugins: [
-            // create a thin wrapper class to avoid having to call RAPIER.init
-            new CreateFileWebpack({
-                path: path.resolve(__dirname, `./pkg${dim}/dist/`),
-                fileName: "rapier.js",
-                content: `
-import * as RAPIER from "./rapier_async.js";
-await RAPIER.init();
-export default RAPIER;`,
+            new WrapperPlugin({
+                test: /rapier\.js$/,
+                header: "",
+                footer: 'await __webpack_exports__init();' // wait for the wasm to load before resolving the module
             })
         ],
         resolve: {
             extensions: [".tsx", ".ts", ".js"],
         },
         output: {
-            filename: "rapier_async.js",
+            filename: "rapier.js",
+            path: path.resolve(__dirname, `pkg${dim}`, 'dist'),
+            library: {
+                type: "module"
+            }
+        },
+        optimization: {
+            minimize: true
+        },
+        experiments:{
+            asyncWebAssembly: true,
+            outputModule: true,
+            topLevelAwait: true,
+        }
+    };
+}
+
+function compileInlined({is2d}) {
+    let dim = is2d ? "2d" : "3d";
+
+    return {
+        mode: "production",
+        entry: `./pkg${dim}/src/rapier.ts`,
+        devtool: "source-map",
+        module: {
+            rules: [
+                {
+                    test: /\.wasm$/,
+                    type: 'asset/inline'
+                },
+                {
+                    test: /\.tsx?$/,
+                    loader: "ts-loader",
+                    exclude: /node_modules/
+                }
+            ]
+        },
+        plugins: [
+            new WrapperPlugin({
+                test: /rapier\.js$/,
+                header: "",
+                footer: 'await __webpack_exports__init();' // wait for the wasm to load before resolving the module
+            })
+        ],
+        resolve: {
+            extensions: [".tsx", ".ts", ".js"],
+        },
+        output: {
+            filename: "rapier.js",
             enabledChunkLoadingTypes: ["import-scripts"],
             chunkLoading: "import-scripts",
             wasmLoading: "fetch",
@@ -144,6 +190,9 @@ export default RAPIER;`,
             library: {
                 type: "module"
             }
+        },
+        optimization: {
+            minimize: true
         },
         experiments:{
             asyncWebAssembly: true,
@@ -155,16 +204,31 @@ export default RAPIER;`,
 
 // Webpack doesn't really handle files that are both inputs and outputs. Instead, run
 // webpack twice, once to genrate the source, and once to compile it.
-module.exports = env => env.phase === "1" ? [
-    // 2d
-    copyAndReplace({is2d: true}),
+module.exports = env => {
+    switch(env.phase){
+        case 'src':
+            return [
+                // 2d
+                copyAndReplace({is2d: true}),
 
-    // 3d
-    copyAndReplace({is2d: false}),
-] : [
-    // 2d
-    compile({is2d: true}),
+                // 3d
+                copyAndReplace({is2d: false}),
+            ]
+        case 'compile':
+            return [
+                // 2d
+                compile({is2d: true}),
 
-    // 3d
-    compile({is2d: false}),
-];
+                // 3d
+                compile({is2d: false})
+            ]
+        case 'compileInlined':
+            return [
+                // 2d
+                compileInlined({is2d: true}),
+
+                // 3d
+                compileInlined({is2d: false})
+            ]
+    }
+}
