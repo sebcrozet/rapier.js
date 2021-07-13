@@ -1,0 +1,27 @@
+{
+  "name": "build-rapier",
+  "description": "Build scripts targeting a buildless modern browser env.",
+  "private": true,
+  "scripts": {
+    "build-rust-2d": "wasm-pack build ../rapier2d --target web",
+    "build-rust-3d": "wasm-pack build ../rapier3d --target web",
+    "build-rust": "npm run build-rust-2d && npm run build-rust-3d",
+    "build": "npm run clean && npm run build-rust && npm run webpack",
+    "clean": "npx rimraf ../rapier2d/pkg ../rapier3d/pkg pkg2d pkg3d ../rapier2d/docs ../rapier3d/docs",
+    "webpack": "npx webpack --env phase=src && npx webpack --env phase=compile",
+    "webpack-inline": "npx webpack --env phase=src && npx webpack --env phase=compileInlined",
+    "all": "npm run build"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^7.0.0",
+    "create-file-webpack": "^1.0.2",
+    "file-loader": "^6.2.0",
+    "rimraf": "^3.0.2",
+    "ts-loader": "^8.0.12",
+    "typescript": "^4.1.3",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.11.0",
+    "webpack-cli": "^4.3.0",
+    "wrapper-webpack-plugin": "^2.1.0"
+  }
+}
