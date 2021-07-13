@@ -29,11 +29,20 @@ export class VectorOps {
     }
 
     // FIXME: type ram: RawVector?
-    public static fromRaw(raw: RawVector): Vector {
+    public static fromRaw(raw: RawVector, target?: Vector): Vector {
         if (!raw)
             return null;
 
-        let res = VectorOps.new(raw.x, raw.y);
+        let res: Vector;
+
+        if (target) {
+            target.x = raw.x;
+            target.y = raw.y;
+            res = target;
+        } else {
+            res = VectorOps.new(raw.x, raw.y);
+        }
+
         raw.free();
         return res;
     }
@@ -106,11 +115,21 @@ export class VectorOps {
     }
 
     // FIXME: type ram: RawVector?
-    public static fromRaw(raw: RawVector): Vector {
+    public static fromRaw(raw: RawVector, target?: Vector): Vector {
         if (!raw)
             return null;
 
-        let res = VectorOps.new(raw.x, raw.y, raw.z);
+        let res: Vector;
+
+        if (target) {
+            target.x = raw.x;
+            target.y = raw.y;
+            target.z = raw.z;
+            res = target;
+        } else {
+            res = VectorOps.new(raw.x, raw.y, raw.z);
+        }
+
         raw.free();
         return res;
     }
@@ -145,11 +164,22 @@ export class RotationOps {
         return new Quaternion(0.0, 0.0, 0.0, 1.0);
     }
 
-    public static fromRaw(raw: RawRotation): Rotation {
+    public static fromRaw(raw: RawRotation, target?: Rotation): Rotation {
         if (!raw)
             return null;
 
-        let res = new Quaternion(raw.x, raw.y, raw.z, raw.w);
+        let res 
+
+        if (target) {
+            target.x = raw.x;
+            target.y = raw.y;
+            target.z = raw.z;
+            target.w = raw.w;
+            res = target;
+        } else {
+            res = new Quaternion(raw.x, raw.y, raw.z, raw.w);
+        }
+
         raw.free();
         return res;
     }

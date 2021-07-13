@@ -76,17 +76,32 @@ export class Collider {
 
     /**
      * The world-space translation of this rigid-body.
+     * @param target - The target Vector object to write to.
      */
-    public translation(): Vector {
-        return VectorOps.fromRaw(this.rawSet.coTranslation(this.handle));
+    public translation(target?: Vector): Vector {
+        return VectorOps.fromRaw(this.rawSet.coTranslation(this.handle), target);
     }
+
+    // #if DIM3
 
     /**
      * The world-space orientation of this rigid-body.
+     * @param target - The target Rotation object to write to.
      */
-    public rotation(): Rotation {
+    public rotation(target?: Rotation): Rotation {
+        return RotationOps.fromRaw(this.rawSet.coRotation(this.handle), target);
+    }
+
+    // #endif
+
+    // #if DIM2
+    /**
+     * The world-space orientation of this rigid-body.
+     */
+     public rotation(): Rotation {
         return RotationOps.fromRaw(this.rawSet.coRotation(this.handle));
     }
+    // #endif
 
     /**
      * Is this collider a sensor?
@@ -326,9 +341,10 @@ export class Collider {
 
     /**
      * The half-extents of this collider if it is a cuboid shape.
+     * @param target - The target Vector object to write to.
      */
-    public halfExtents(): Vector {
-        return VectorOps.fromRaw(this.rawSet.coHalfExtents(this.handle));
+    public halfExtents(target?: Vector): Vector {
+        return VectorOps.fromRaw(this.rawSet.coHalfExtents(this.handle), target);
     }
 
     /**
@@ -380,10 +396,11 @@ export class Collider {
     /**
      * If this collider has a heightfield shape, this returns the scale
      * applied to it.
+     * @param target - The target Vector object to write to.
      */
-    public heightfieldScale(): Vector {
+    public heightfieldScale(target?: Vector): Vector {
         let scale = this.rawSet.coHeightfieldScale(this.handle);
-        return VectorOps.fromRaw(scale);
+        return VectorOps.fromRaw(scale, target);
     }
 
     // #if DIM3

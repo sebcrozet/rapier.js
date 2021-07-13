@@ -121,31 +121,69 @@ export class RigidBody {
 
     /**
      * The world-space translation of this rigid-body.
+     * @param target - The target Vector object to write to.
      */
-    public translation(): Vector {
+    public translation(target?: Vector): Vector {
         let res = this.rawSet.rbTranslation(this.handle);
-        return VectorOps.fromRaw(res);
+        return VectorOps.fromRaw(res, target);
     }
+
+    // #if DIM3
+
+    /**
+     * The world-space orientation of this rigid-body.
+     * @param target - The target Rotation object to write to.
+     */
+    public rotation(target?: Rotation): Rotation {
+        let res = this.rawSet.rbRotation(this.handle);
+        return RotationOps.fromRaw(res, target);
+    }
+
+    // #endif
+
+    // #if DIM2
 
     /**
      * The world-space orientation of this rigid-body.
      */
-    public rotation(): Rotation {
+     public rotation(): Rotation {
         let res = this.rawSet.rbRotation(this.handle);
         return RotationOps.fromRaw(res);
     }
 
+    // #endif
+
     /**
      * The world-space next translation of this rigid-body.
+     * @param target - The target Vector object to write to.
      *
      * If this rigid-body is kinematic this value is set by the `setNextKinematicTranslation`
      * method and is used for estimating the kinematic body velocity at the next timestep.
      * For non-kinematic bodies, this value is currently unspecified.
      */
-    public nextTranslation(): Vector {
+    public nextTranslation(target?: Vector): Vector {
         let res = this.rawSet.rbNextTranslation(this.handle);
-        return VectorOps.fromRaw(res);
+        return VectorOps.fromRaw(res, target);
     }
+
+    // #if DIM3
+
+    /**
+     * The world-space next orientation of this rigid-body.
+     * @param target - The target Rotation object to write to.
+     *
+     * If this rigid-body is kinematic this value is set by the `setNextKinematicRotation`
+     * method and is used for estimating the kinematic body velocity at the next timestep.
+     * For non-kinematic bodies, this value is currently unspecified.
+     */
+    public nextRotation(target?: Rotation): Rotation {
+        let res = this.rawSet.rbNextRotation(this.handle);
+        return RotationOps.fromRaw(res, target);
+    }
+
+    // #endif
+
+    // #if DIM2
 
     /**
      * The world-space next orientation of this rigid-body.
@@ -154,10 +192,12 @@ export class RigidBody {
      * method and is used for estimating the kinematic body velocity at the next timestep.
      * For non-kinematic bodies, this value is currently unspecified.
      */
-    public nextRotation(): Rotation {
+     public nextRotation(): Rotation {
         let res = this.rawSet.rbNextRotation(this.handle);
         return RotationOps.fromRaw(res);
     }
+
+    // #endif
 
     /**
      * Sets the translation of this rigid-body.
@@ -317,17 +357,19 @@ export class RigidBody {
 
     /**
      * The linear velocity of this rigid-body.
+     * @param target - The target Vector object to write to.
      */
-    public linvel(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbLinvel(this.handle));
+    public linvel(target?: Vector): Vector {
+        return VectorOps.fromRaw(this.rawSet.rbLinvel(this.handle), target);
     }
 
     // #if DIM3
     /**
      * The angular velocity of this rigid-body.
+     * @param target - The target Vector object to write to.
      */
-    public angvel(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbAngvel(this.handle));
+    public angvel(target?: Vector): Vector {
+        return VectorOps.fromRaw(this.rawSet.rbAngvel(this.handle), target);
     }
 
     // #endif
